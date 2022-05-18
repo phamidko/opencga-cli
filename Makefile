@@ -7,6 +7,7 @@ SERVICE_PORT?=3000
 DOCKER_REGISTRY?= #if set it should finished by /
 EXPORT_RESULT?=false # for CI please set EXPORT_RESULT to true
 MODEBUILD=readonly
+BUILDDIR=./bin
 
 GREEN  := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
@@ -20,11 +21,11 @@ all: help
 
 ## Build:
 build: ## Build your project and put the output binary in bin/
-	mkdir -p out/bin
-	GO111MODULE=on $(GOCMD) build -mod $(MODEBUILD) -o bin/$(BINARY_NAME) .
+	mkdir -p $(BUILDDIR)
+	GO111MODULE=on $(GOCMD) build -mod $(MODEBUILD) -o $(BUILDDIR)/$(BINARY_NAME) .
 
 clean: ## Remove build related file
-	rm -fr ./bin
+	rm -fr $(BUILDDIR)
 	rm -f ./junit-report.xml checkstyle-report.xml ./coverage.xml ./profile.cov yamllint-checkstyle.xml
 
 vendor: ## Copy of all packages needed to support builds and tests in the vendor directory
