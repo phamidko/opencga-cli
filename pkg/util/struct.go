@@ -1,5 +1,10 @@
 package util
 
+const (
+	COLOR_RESET  = "\033[0m"
+	COLOR_YELLOW = "\033[33m"
+)
+
 type Cellbase struct {
 	APIVersion string          `json:"apiVersion"`
 	Time       int             `json:"time"`

@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -35,6 +36,12 @@ const (
 
 	DEFAULT_RESTAPI_SERVICE = "webservices/rest/" // "http://usa.ws.zettagenomics.com/cellbase/webservices/rest/v5/meta/about"
 	REST_API_ENDPOINT       = "/meta/about"
+
+	IVA_REGEXP_MATCH         = `(?si)OpenCB Suite",[\r\n]+([^\r\n]+)` // fetch version: "v2.2.0",
+	IVA_REGEXP_MATCH_VERSION = `(?si)"(.*?)"`
+
+	// COLOR_RESET  = "\033[0m"
+	// COLOR_YELLOW = "\033[33m"
 )
 
 func fetch(url string) []byte {
@@ -59,6 +66,17 @@ func fetch(url string) []byte {
 		log.Fatal(err)
 	}
 	return body
+
+}
+func parse_iva_version(s string) (a string) {
+	var re = regexp.MustCompile(IVA_REGEXP_MATCH)
+	match := re.FindString(s)
+	words := strings.FieldsFunc(match, func(c rune) bool { return c == '\n' })
+
+	re = regexp.MustCompile(IVA_REGEXP_MATCH_VERSION)
+	match = re.FindString(words[1])
+	iva_version := strings.ReplaceAll(match, `"`, "")
+	return iva_version
 
 }
 func parse_string(s []string) []string {
@@ -131,6 +149,7 @@ var versionCmd = &cobra.Command{
 
 		fmt.Printf("Fetching from %s\n", i.String())
 		body_IVA := string(fetch(i.String()))
+		iva_version := parse_iva_version(body_IVA)
 
 		var end = len([]rune(body_IVA))
 		var start = end - INDEX_EXTRACT_SUBSTRING
@@ -142,8 +161,9 @@ var versionCmd = &cobra.Command{
 		output = parse_string(output)
 		res_cellbase, res_opencga = parse_struct(output)
 
-		fmt.Printf("\tCellbase Version: %s \t\tGit Commit: %s \tGit Branch: %s\n", res_cellbase.Responses[0].Results[0].Version, res_cellbase.Responses[0].Results[0].GitCommit, res_cellbase.Responses[0].Results[0].GitBranch)
-		fmt.Printf("\tOpenCGA Version: %s \tGit Commit: %s \tGit Branch: %s\n", res_opencga.Responses[0].Results[0].Version, res_opencga.Responses[0].Results[0].GitCommit, res_opencga.Responses[0].Results[0].GitBranch)
+		fmt.Printf("\tIVA Version: %s%s%s\n", util.COLOR_YELLOW, iva_version, util.COLOR_RESET)
+		fmt.Printf("\tCellbase Version: %s%s%s \t\tGit Commit: %s \tGit Branch: %s\n", util.COLOR_YELLOW, res_cellbase.Responses[0].Results[0].Version, util.COLOR_RESET, res_cellbase.Responses[0].Results[0].GitCommit, res_cellbase.Responses[0].Results[0].GitBranch)
+		fmt.Printf("\tOpenCGA Version: %s%s%s \tGit Commit: %s \tGit Branch: %s\n", util.COLOR_YELLOW, res_opencga.Responses[0].Results[0].Version, util.COLOR_RESET, res_opencga.Responses[0].Results[0].GitCommit, res_opencga.Responses[0].Results[0].GitBranch)
 
 	},
 }

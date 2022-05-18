@@ -6,6 +6,7 @@ VERSION?=0.1.x
 SERVICE_PORT?=3000
 DOCKER_REGISTRY?= #if set it should finished by /
 EXPORT_RESULT?=false # for CI please set EXPORT_RESULT to true
+MODEBUILD=readonly
 
 GREEN  := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
@@ -20,7 +21,7 @@ all: help
 ## Build:
 build: ## Build your project and put the output binary in bin/
 	mkdir -p out/bin
-	GO111MODULE=on $(GOCMD) build -mod readonly -o bin/$(BINARY_NAME) .
+	GO111MODULE=on $(GOCMD) build -mod $(MODEBUILD) -o bin/$(BINARY_NAME) .
 
 clean: ## Remove build related file
 	rm -fr ./bin
