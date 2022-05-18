@@ -12,8 +12,8 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "opencga cli",
-	Short: "A brief description of your application",
+	Use:   "opencga",
+	Short: "opencga cli",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },

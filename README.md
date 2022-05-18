@@ -4,12 +4,9 @@ Build
 git clone git@github.com/phamidko/opencga-cli
 cd opencga-cli
 go mod init github.com/phamidko/opencga-cli
-go install github.com/spf13/cobra-cli@latest
 go get -u github.com/spf13/cobra@v1.4.0
 go get -u github.com/mvdan/xurls
-
 make build
-
 ```
 
 Usage
@@ -25,6 +22,24 @@ Help
 
 ```
 ./bin/opencga -h
-./bin/opencga get version -h
+opencga cli
 
+Usage:
+  opencga [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  get         Get type of resource to query
+  help        Help about any command
+
+Flags:
+  -h, --help   help for opencga
+
+Use "opencga [command] --help" for more information about a command.
+```
+
+
+Optional
+```
+go install github.com/spf13/cobra-cli@latest
 ```
