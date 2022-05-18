@@ -1,0 +1,6 @@
+.github
+.idea
+zz_*
+vendor/
+scripts/
+.git/
