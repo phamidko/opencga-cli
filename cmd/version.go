@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -44,28 +45,33 @@ const (
 	// COLOR_YELLOW = "\033[33m"
 )
 
-func fetch(url string) []byte {
+func fetch(url string) ([]byte, error) {
 
 	spaceClient := http.Client{
 		Timeout: time.Second * HTTP_REQUEST_TIMEOUT, // Timeout after 2 seconds
 	}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		log.Fatal(err)
+		return nil, errors.New("request query failed")
 	}
 	req.Header.Set("User-Agent", "opencga-cli")
 	res, err := spaceClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return nil, errors.New("error during the query")
+	}
+
+	statusOK := res.StatusCode >= 200 && res.StatusCode < 300
+	if !statusOK {
+		return nil, errors.New("non-OK HTTP status")
 	}
 	if res.Body != nil {
 		defer res.Body.Close()
 	}
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Fatal(err)
+		return nil, errors.New("error in response body parsing")
 	}
-	return body
+	return body, nil
 
 }
 func parse_iva_version(s string) (a string) {
@@ -95,7 +101,7 @@ func parse_string(s []string) []string {
 func parse_struct(s []string) (c *util.Cellbase, o *util.Opencga) {
 	cellbase := &util.Cellbase{}
 	opencga := &util.Opencga{}
-	var body []byte
+	// var body []byte
 	for i := 0; i < len(s); i++ {
 		if strings.HasSuffix(s[i], DEFAULT_CELLBASE_SERVICE_BASE_PATH) {
 			var t strings.Builder
@@ -105,8 +111,12 @@ func parse_struct(s []string) (c *util.Cellbase, o *util.Opencga) {
 			t.WriteString(REST_API_ENDPOINT)
 			s[i] = t.String()
 
-			body = fetch(s[i])
-			err := json.Unmarshal([]byte(body), cellbase)
+			body, err := fetch(s[i])
+			if err != nil {
+				log.Fatalf("Unable to query to the site: %s", err.Error())
+
+			}
+			err = json.Unmarshal([]byte(body), cellbase)
 			if err != nil {
 				log.Fatalf("unable to parse value: %q, error: %s",
 					string(body), err.Error())
@@ -118,8 +128,12 @@ func parse_struct(s []string) (c *util.Cellbase, o *util.Opencga) {
 			t.WriteString(OPENCGA_VERSION)
 			t.WriteString(REST_API_ENDPOINT)
 			s[i] = t.String()
-			body = fetch(s[i])
-			err := json.Unmarshal([]byte(body), opencga)
+			body, err := fetch(s[i])
+			if err != nil {
+				log.Fatalf("Unable to query to the site: %s", err.Error())
+
+			}
+			err = json.Unmarshal([]byte(body), opencga)
 			if err != nil {
 				log.Fatalf("unable to parse value: %q, error: %s",
 					string(body), err.Error())
@@ -140,7 +154,21 @@ var versionCmd = &cobra.Command{
 
 		// build URL "https://iva.mseqdr.org/iva/conf/config.js"
 		var i strings.Builder
-		i.WriteString(HTTPS_DEFAULT_PROTOCOL)
+		// check URL string if starts with http
+		rxStrict := xurls.Strict
+		url_string := rxStrict.FindAllString(URL, -1)
+		if len(url_string) == 0 {
+			// input possible without http or invalid address
+			rxRelaxed := xurls.Relaxed
+			url_string := rxRelaxed.FindString(URL)
+			if len(url_string) == 0 {
+				log.Fatal("invalid url string")
+			} else {
+				// add http to the string
+				i.WriteString(HTTPS_DEFAULT_PROTOCOL)
+			}
+		}
+
 		i.WriteString(URL)
 		i.WriteString(IVA_CONFIG_FILE_PATH)
 
@@ -148,14 +176,19 @@ var versionCmd = &cobra.Command{
 		var res_opencga *util.Opencga
 
 		fmt.Printf("Fetching from %s\n", i.String())
-		body_IVA := string(fetch(i.String()))
+		body, err := fetch(i.String())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		body_IVA := string(body)
 		iva_version := parse_iva_version(body_IVA)
 
 		var end = len([]rune(body_IVA))
 		var start = end - INDEX_EXTRACT_SUBSTRING
 		body_IVA_substring := body_IVA[start:end]
 
-		rxStrict := xurls.Strict
+		// rxStrict := xurls.Strict
 		output := rxStrict.FindAllString(body_IVA_substring, -1)
 
 		output = parse_string(output)

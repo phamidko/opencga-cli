@@ -20,9 +20,12 @@ RESET  := $(shell tput -Txterm sgr0)
 all: help
 
 ## Build:
-build: ## Build your project and put the output binary in bin/
-	mkdir -p $(BUILDDIR)
-	GO111MODULE=on $(GOCMD) build -mod $(MODEBUILD) -o $(BUILDDIR)/$(BINARY_NAME) .
+build: ## Build project and put the output binary in bin/
+	mkdir -p $(BUILDDIR) $(BUILDDIR)/linux $(BUILDDIR)/windows $(BUILDDIR)/macOS
+	GO111MODULE=on GOOS=linux GOARCH=amd64 $(GOCMD) build -mod $(MODEBUILD) -o $(BUILDDIR)/linux/$(BINARY_NAME) .
+	GO111MODULE=on GOOS=windows GOARCH=amd64 $(GOCMD) build -mod $(MODEBUILD) -o $(BUILDDIR)/windows/$(BINARY_NAME).exe .
+	GO111MODULE=on GOOS=darwin GOARCH=amd64 $(GOCMD) build -mod $(MODEBUILD) -o $(BUILDDIR)/macOS/$(BINARY_NAME) .
+
 
 clean: ## Remove build related file
 	rm -fr $(BUILDDIR)
