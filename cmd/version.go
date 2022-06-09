@@ -38,7 +38,8 @@ const (
 	DEFAULT_RESTAPI_SERVICE = "webservices/rest/" // "http://usa.ws.zettagenomics.com/cellbase/webservices/rest/v5/meta/about"
 	REST_API_ENDPOINT       = "/meta/about"
 
-	IVA_REGEXP_MATCH         = `(?si)OpenCB Suite",[\r\n]+([^\r\n]+)` // fetch version: "v2.2.0",
+	// IVA_REGEXP_MATCH         = `(?si)OpenCB Suite",[\r\n]+([^\r\n]+)` // fetch version: "v2.2.0",
+	IVA_REGEXP_MATCH         = `(?si)SUITE = {([\r\n])+([^\r]){100}` // fetch version: "v2.2.0", ((.*(\n|\r|\r\n)){2})const SUITE = {
 	IVA_REGEXP_MATCH_VERSION = `(?si)"(.*?)"`
 
 	// COLOR_RESET  = "\033[0m"
@@ -74,15 +75,19 @@ func fetch(url string) ([]byte, error) {
 	return body, nil
 
 }
-func parse_iva_version(s string) (a string) {
+func parse_iva_version(str string) (string, error) {
 	var re = regexp.MustCompile(IVA_REGEXP_MATCH)
-	match := re.FindString(s)
+	match := re.FindString(str)
+	fmt.Printf("iva matched with const SUITE : %s\n", match)
 	words := strings.FieldsFunc(match, func(c rune) bool { return c == '\n' })
+	if len(words) == 0 {
+		return "", errors.New("failed in parsing IVA version")
+	}
 
 	re = regexp.MustCompile(IVA_REGEXP_MATCH_VERSION)
-	match = re.FindString(words[1])
+	match = re.FindString(words[3])
 	iva_version := strings.ReplaceAll(match, `"`, "")
-	return iva_version
+	return iva_version, nil
 
 }
 func parse_string(s []string) []string {
@@ -182,7 +187,10 @@ var versionCmd = &cobra.Command{
 		}
 
 		body_IVA := string(body)
-		iva_version := parse_iva_version(body_IVA)
+		iva_version, err := parse_iva_version(body_IVA)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		var end = len([]rune(body_IVA))
 		var start = end - INDEX_EXTRACT_SUBSTRING
