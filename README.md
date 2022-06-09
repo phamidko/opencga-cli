@@ -3,7 +3,7 @@
 Usage
 
 ```
-./bin/opencga get version -s iva.mseqdr.org
+./bin/linux/opencga get version -s iva.mseqdr.org
 Fetching from https://iva.mseqdr.org/iva/conf/config.js
         IVA Version: v2.2.0
         Cellbase Version: 5.0.1                 Git Commit: eaae3a6f7b407c1eebdb1b4bfede941f4b506b30    Git Branch: release-5.0.x
