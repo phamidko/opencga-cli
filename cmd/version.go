@@ -27,13 +27,14 @@ var (
 )
 
 const (
-	HTTP_REQUEST_TIMEOUT        = 2   // second
-	INDEX_EXTRACT_SUBSTRING int = 174 // Arbitrary number to achieve performance
-	CELLBASE_VERSION            = `v5`
-	OPENCGA_VERSION             = `v2`
-	IVA_CONFIG_FILE_PATH        = "/iva/conf/config.js"
-	HTTPS_DEFAULT_PROTOCOL      = "https://"
-	HTTPS_SUFFIX                = "/"
+	HTTP_REQUEST_TIMEOUT             = 2   // second
+	INDEX_EXTRACT_SUBSTRING      int = 174 // Arbitrary number to achieve performance
+	CELLBASE_VERSION                 = `v5`
+	OPENCGA_VERSION                  = `v2`
+	IVA_CONFIG_FILE_PATH             = "/iva/conf/config.js"
+	HTTPS_DEFAULT_PROTOCOL           = "https://"
+	HTTPS_SUFFIX                     = "/"
+	HTTPS_SUFFIX_WITH_IVA_CONFIG     = "conf/config.js"
 
 	DEFAULT_RESTAPI_SERVICE = "webservices/rest/" // "http://usa.ws.zettagenomics.com/cellbase/webservices/rest/v5/meta/about"
 	REST_API_ENDPOINT       = "/meta/about"
@@ -173,9 +174,13 @@ var versionCmd = &cobra.Command{
 			}
 		}
 
-		URL = strings.TrimSuffix(URL, HTTPS_SUFFIX)
-		i.WriteString(URL)
-		i.WriteString(IVA_CONFIG_FILE_PATH)
+		if strings.HasSuffix(URL, HTTPS_SUFFIX_WITH_IVA_CONFIG) {
+			i.WriteString(URL)
+		} else {
+			URL = strings.TrimSuffix(URL, HTTPS_SUFFIX)
+			i.WriteString(URL)
+			i.WriteString(IVA_CONFIG_FILE_PATH)
+		}
 
 		var res_cellbase *util.Cellbase
 		var res_opencga *util.Opencga
