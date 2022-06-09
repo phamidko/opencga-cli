@@ -58,7 +58,7 @@ func fetch(url string) ([]byte, error) {
 	req.Header.Set("User-Agent", "opencga-cli")
 	res, err := spaceClient.Do(req)
 	if err != nil {
-		return nil, errors.New("error during the query")
+		return nil, errors.New("error during the query. Check the IVA URL")
 	}
 
 	statusOK := res.StatusCode >= 200 && res.StatusCode < 300
@@ -166,13 +166,14 @@ var versionCmd = &cobra.Command{
 			rxRelaxed := xurls.Relaxed
 			url_string := rxRelaxed.FindString(URL)
 			if len(url_string) == 0 {
-				log.Fatal("invalid url string")
+				log.Fatal("invalid url string. Check the URL")
 			} else {
 				// add http to the string
 				i.WriteString(HTTPS_DEFAULT_PROTOCOL)
 			}
 		}
 
+		URL = strings.TrimSuffix(URL, "/")
 		i.WriteString(URL)
 		i.WriteString(IVA_CONFIG_FILE_PATH)
 
@@ -200,14 +201,30 @@ var versionCmd = &cobra.Command{
 
 		output = parse_string(output)
 		res_cellbase, res_opencga = parse_struct(output)
-		fmt.Printf("res_cellbase struct : %s\n", res_cellbase.Responses)
-		fmt.Printf("res_opencga struct : %s\n", res_opencga.Responses)
 
 		fmt.Printf("\tIVA Version: %s%s%s\n", util.COLOR_YELLOW, iva_version, util.COLOR_RESET)
-		fmt.Printf("\tCellbase Version: %s%s%s \t\tGit Commit: %s \tGit Branch: %s\n", util.COLOR_YELLOW, res_cellbase.Responses[0].Results[0].Version, util.COLOR_RESET, res_cellbase.Responses[0].Results[0].GitCommit, res_cellbase.Responses[0].Results[0].GitBranch)
-		fmt.Printf("\tOpenCGA Version: %s%s%s \tGit Commit: %s \tGit Branch: %s\n", util.COLOR_YELLOW, res_opencga.Responses[0].Results[0].Version, util.COLOR_RESET, res_opencga.Responses[0].Results[0].GitCommit, res_opencga.Responses[0].Results[0].GitBranch)
 
+		if res_cellbase.Responses == nil {
+			printConsole("Cellbase", "Not Found", "Not Found", "Not Found")
+		} else {
+			printConsole("Cellbase", res_cellbase.Responses[0].Results[0].Version, res_cellbase.Responses[0].Results[0].GitCommit, res_cellbase.Responses[0].Results[0].GitBranch)
+		}
+
+		if res_opencga.Responses == nil {
+			printConsole("OpenCGA", "Not Found", "Not Found", "Not Found")
+		} else {
+			printConsole("OpenCGA", res_opencga.Responses[0].Results[0].Version, res_opencga.Responses[0].Results[0].GitCommit, res_opencga.Responses[0].Results[0].GitBranch)
+		}
 	},
+}
+
+func printConsole(key string, version string, gitcommit string, gitbranch string) {
+	if key == "Cellbase" {
+		fmt.Printf("\t%s Version: %s%s%s \tGit Commit: %s \tGit Branch: %s\n", key, util.COLOR_YELLOW, version, util.COLOR_RESET, gitcommit, gitbranch)
+	} else {
+		fmt.Printf("\t%s Version: %s%s%s Git Commit: %s \tGit Branch: %s\n", key, util.COLOR_YELLOW, version, util.COLOR_RESET, gitcommit, gitbranch)
+
+	}
 }
 
 func init() {
