@@ -78,7 +78,6 @@ func fetch(url string) ([]byte, error) {
 func parse_iva_version(str string) (string, error) {
 	var re = regexp.MustCompile(IVA_REGEXP_MATCH)
 	match := re.FindString(str)
-	fmt.Printf("iva matched with const SUITE : %s\n", match)
 	words := strings.FieldsFunc(match, func(c rune) bool { return c == '\n' })
 	if len(words) == 0 {
 		return "", errors.New("failed in parsing IVA version")
@@ -201,6 +200,8 @@ var versionCmd = &cobra.Command{
 
 		output = parse_string(output)
 		res_cellbase, res_opencga = parse_struct(output)
+		fmt.Printf("res_cellbase struct : %s\n", res_cellbase.Responses)
+		fmt.Printf("res_opencga struct : %s\n", res_opencga.Responses)
 
 		fmt.Printf("\tIVA Version: %s%s%s\n", util.COLOR_YELLOW, iva_version, util.COLOR_RESET)
 		fmt.Printf("\tCellbase Version: %s%s%s \t\tGit Commit: %s \tGit Branch: %s\n", util.COLOR_YELLOW, res_cellbase.Responses[0].Results[0].Version, util.COLOR_RESET, res_cellbase.Responses[0].Results[0].GitCommit, res_cellbase.Responses[0].Results[0].GitBranch)
