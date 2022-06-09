@@ -173,7 +173,7 @@ var versionCmd = &cobra.Command{
 			}
 		}
 
-		URL = strings.TrimSuffix(URL, "/")
+		URL = strings.TrimSuffix(URL, HTTPS_SUFFIX)
 		i.WriteString(URL)
 		i.WriteString(IVA_CONFIG_FILE_PATH)
 
