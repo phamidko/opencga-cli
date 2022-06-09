@@ -8,6 +8,12 @@ DOCKER_REGISTRY?= #if set it should finished by /
 EXPORT_RESULT?=false # for CI please set EXPORT_RESULT to true
 MODEBUILD=readonly
 BUILDDIR=./bin
+LINUX_PATH=$(BUILDDIR)/linux
+LINUX_TAR_FILENAME=$(LINUX_PATH)/$(BINARY_NAME)_linux_amd64.tar.gz
+MACOS_PATH=$(BUILDDIR)/macOS
+MACOS_TAR_FILENAME=$(MACOS_PATH)/$(BINARY_NAME)_darwin_amd64.tar.gz
+WINDOWS_PATH=$(BUILDDIR)/windows
+WINDOWS_TAR_FILENAME=$(WINDOWS_PATH)/$(BINARY_NAME)_windows_amd64.tar.gz
 
 GREEN  := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
@@ -22,9 +28,15 @@ all: help
 ## Build:
 build: ## Build project and put the output binary in bin/
 	mkdir -p $(BUILDDIR) $(BUILDDIR)/linux $(BUILDDIR)/windows $(BUILDDIR)/macOS
-	GO111MODULE=on GOOS=linux GOARCH=amd64 $(GOCMD) build -mod $(MODEBUILD) -o $(BUILDDIR)/linux/$(BINARY_NAME) .
-	GO111MODULE=on GOOS=windows GOARCH=amd64 $(GOCMD) build -mod $(MODEBUILD) -o $(BUILDDIR)/windows/$(BINARY_NAME).exe .
-	GO111MODULE=on GOOS=darwin GOARCH=amd64 $(GOCMD) build -mod $(MODEBUILD) -o $(BUILDDIR)/macOS/$(BINARY_NAME) .
+	GO111MODULE=on GOOS=linux GOARCH=amd64 $(GOCMD) build -mod $(MODEBUILD) -o $(LINUX_PATH)/$(BINARY_NAME) .
+	chmod 0777 $(LINUX_PATH)/$(BINARY_NAME)
+	tar -czvf $(LINUX_TAR_FILENAME) $(LINUX_PATH)/$(BINARY_NAME)
+	
+	GO111MODULE=on GOOS=darwin GOARCH=amd64 $(GOCMD) build -mod $(MODEBUILD) -o $(MACOS_PATH)/$(BINARY_NAME) .
+	tar -czvf $(MACOS_TAR_FILENAME) $(MACOS_PATH)/$(BINARY_NAME)
+
+	GO111MODULE=on GOOS=windows GOARCH=amd64 $(GOCMD) build -mod $(MODEBUILD) -o $(WINDOWS_PATH)/$(BINARY_NAME).exe .
+	tar -czvf $(WINDOWS_TAR_FILENAME) $(WINDOWS_PATH)/$(BINARY_NAME).exe
 
 
 clean: ## Remove build related file
