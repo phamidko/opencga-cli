@@ -152,7 +152,7 @@ func parse_struct(s []string) (c *util.Cellbase, o *util.Opencga) {
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Get Xeta Suite Version",
+	Short: "Get XetaBase Version",
 	Run: func(cmd *cobra.Command, args []string) {
 		// jsonResponseCellbase := `{"apiVersion":"v5","time":2,"params":{"species":"do not validate species","limit":"10"},"responses":[{"time":0,"numResults":0,"results":[{"Program":"CellBase (OpenCB)","Git commit":"eaae3a6f7b407c1eebdb1b4bfede941f4b506b30","Description":"High-Performance NoSQL database and RESTful web services to access the most relevant biological data","Version":"5.0.1","Git branch":"release-5.0.x"}],"numTotalResults":0,"numMatches":0,"numInserted":0,"numUpdated":0,"numDeleted":0,"id":"about"}]}`
 		// jsonResponseOpencga := `{"apiVersion":"v2","time":1,"events":[],"params":{},"type":"QUERY","responses":[{"time":0,"numResults":1,"results":[{"Program":"OpenCGA (OpenCB)","Git commit":"27cf2ae4bb95596daf839f107dac3d8fb63e6715","Description":"Big Data platform for processing and analysing NGS data","Version":"2.2.1-SNAPSHOT","Git branch":"release-2.2.x"}],"numMatches":0,"numInserted":0,"numUpdated":0,"numDeleted":0,"numErrors":0,"federationNode":{"id":"primary","uri":"http://opencga.mseqdr.org/opencga/webservices/rest/","commit":"27cf2ae4bb95596daf839f107dac3d8fb63e6715","version":"2.2.1-SNAPSHOT"},"numTotalResults":0}]}`
