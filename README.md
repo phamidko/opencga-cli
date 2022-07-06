@@ -1,5 +1,12 @@
 # opencga-cli 
 
+Download the binary file
+```
+# Linux 
+wget https://github.com/phamidko/opencga-cli/releases/download/v0.1.0-alpha/opencga_linux_amd64.tar.gz
+tar -xvf opencga_linux_amd64.tar.gz 
+```
+
 Usage
 
 ```
