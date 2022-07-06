@@ -241,7 +241,7 @@ func init() {
 	// and all subcommands, e.g.:
 	// versionCmd.PersistentFlags().String("foo", "", "A help for foo")
 	// versionCmd.PersistentFlags().StringVarP(&Url, "url", "u", "https://iva.zettagenomics.com/iva/", "site URL")
-	versionCmd.PersistentFlags().StringVarP(&URL, "site", "s", "uat.eglh.app.zettagenomics.com", "site URL")
+	versionCmd.PersistentFlags().StringVarP(&URL, "site", "s", "demo.app.zettagenomics.com", "site URL")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
