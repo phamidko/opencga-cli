@@ -10,8 +10,6 @@ tar -xvf opencga_linux_amd64.tar.gz
 Usage
 
 ```
-# IVA url
-# IVA url 
 ./bin/linux/opencga get version -s uat.eglh.app.zettagenomics.com
 Fetching from https://uat.eglh.app.zettagenomics.com/iva/conf/config.js
         IVA Version: v2.2.0-dev
